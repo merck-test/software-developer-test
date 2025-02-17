@@ -1,15 +1,18 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+import csv
+import io
+from collections import defaultdict
+from datetime import date
+from typing import List, Optional
+
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from datetime import date
-from typing import Optional, List
-import io
-import csv
 
 app = FastAPI(title="Customer Purchases API")
 
 # In-memory storage
 purchases = []
+
 
 class Purchase(BaseModel):
     customer_name: str
@@ -17,35 +20,47 @@ class Purchase(BaseModel):
     purchase_date: date
     amount: float
 
+
 @app.post("/purchase/", response_model=Purchase)
 async def add_purchase(purchase: Purchase):
     purchases.append(purchase)
     return purchase
 
+
 @app.post("/purchase/bulk/")
 async def add_bulk_purchases(file: UploadFile = File(...)):
     if file.content_type not in ["text/csv"]:
         raise HTTPException(status_code=400, detail="Invalid file format")
+
     contents = await file.read()
     decoded = contents.decode("utf-8")
     reader = csv.DictReader(io.StringIO(decoded))
+    expected_headers = {"customer_name", "country", "purchase_date", "amount"}
     new_purchases = []
+
     for row in reader:
         try:
             purchase = Purchase(
                 customer_name=row["customer_name"],
                 country=row["country"],
                 purchase_date=date.fromisoformat(row["purchase_date"]),
-                amount=float(row["amount"])
+                amount=float(row["amount"]),
             )
             purchases.append(purchase)
             new_purchases.append(purchase)
         except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Error processing row: {row} - {e}")
+            raise HTTPException(
+                status_code=400, detail=f"Error processing row: {row} - {e}"
+            )
     return JSONResponse(content={"added": len(new_purchases)})
 
+
 @app.get("/purchases/", response_model=List[Purchase])
-def get_purchases(country: Optional[str] = None, start_date: Optional[date] = None, end_date: Optional[date] = None):
+def get_purchases(
+    country: Optional[str] = None,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+):
     filtered = purchases
     if country:
         filtered = [p for p in filtered if p.country.lower() == country.lower()]
@@ -54,3 +69,24 @@ def get_purchases(country: Optional[str] = None, start_date: Optional[date] = No
     if end_date:
         filtered = [p for p in filtered if p.purchase_date <= end_date]
     return filtered
+
+
+@app.get("/purchases/kpis/")
+def get_kpis():
+    if not purchases:
+        return {"error": "No purchases available"}
+
+    total_amount = sum(p.amount for p in purchases)
+    customers = {p.customer_name for p in purchases}
+    avg_purchase_per_client = total_amount / len(customers) if customers else 0
+
+    clients_per_country = defaultdict(set)
+    for p in purchases:
+        clients_per_country[p.country].add(p.customer_name)
+
+    clients_count_by_country = {k: len(v) for k, v in clients_per_country.items()}
+
+    return {
+        "average_purchase_per_client": avg_purchase_per_client,
+        "clients_per_country": clients_count_by_country,
+    }
