@@ -13,4 +13,4 @@ This backend provides an API to manage customer purchases, allowing users to add
 
 ## 📄 📤 Usage Examples
 
-[![Uploading csv]()](./Videos/Adding csv.mkv)
+https://github.com/user-attachments/assets/f9be8858-3163-4309-ba83-46c3d31b39be
