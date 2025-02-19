@@ -30,6 +30,21 @@ This project consists of two main components:
   - **Upload Section**: Allows users to manually input a single purchase or upload a CSV file.
   - **Analysis Section**: Enables filtering by date and country and displays key KPIs retrieved from the backend.
 
+### 📈 Sales Forecasting with Prophet
+
+The system includes a sales forecasting feature powered by Facebook's Prophet time series forecasting model.
+
+#### 🔧 Implementation Details
+
+| Feature            | Details                                                         |
+| ------------------ | --------------------------------------------------------------- |
+| Prediction Horizon | Default 16 days (configurable via `days` parameter in API call) |
+| Data Requirements  | Minimum 1 week of historical data for meaningful predictions    |
+| Algorithm          | Facebook Prophet (additive regression model)                    |
+| Key Parameters     | - Growth: Linear<br>- Seasonality: Daily, weekly, yearly        |
+| Input Features     | - Date<br>- Sales amount                                        |
+| Output             | Daily sales predictions with confidence intervals               |
+
 ### 🐳 **Dockerization**
 
 - Both the FastAPI backend and Streamlit frontend are containerized.

@@ -86,26 +86,3 @@ with analyse_tab:
                 st.error("Error fetching KPIs")
         except Exception as e:
             st.error(f"Request failed: {str(e)}")
-
-    # --- Predict Future Purchases ---
-    # st.subheader("Predict Future Purchases")
-    # days = st.number_input(
-    #     "Days to Predict", min_value=1, value=10, step=1, key="predict_days"
-    # )
-    # if st.button("Predict", key="predict"):
-    #     try:
-    #         response = requests.get(
-    #             "http://backend:8000/predict/", params={"days": days}
-    #         )
-    #         if response.status_code == 200:
-    #             predictions = response.json()
-    #             st.write("Predictions:", predictions)
-    #             # Graficar la predicción
-    #             df_pred = pd.DataFrame(predictions)
-    #             df_pred["ds"] = pd.to_datetime(df_pred["ds"])
-    #             df_pred = df_pred.set_index("ds")
-    #             st.line_chart(df_pred["yhat"])
-    #         else:
-    #             st.error("Error fetching predictions")
-    #     except Exception as e:
-    #         st.error(f"Request failed: {str(e)}")
