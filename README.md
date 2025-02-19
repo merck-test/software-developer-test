@@ -1,73 +1,84 @@
-# Customer Purchases API & Streamlit App
+# 🛍️ Customer Purchases Dashboard
 
-## Overview
+## 📌 Overview
 
-Build a system with two main components:
+This project consists of two main components:
 
-1. **Backend (FastAPI)**  
-   - Manage customer purchase data in-memory.
-   - Endpoints to:
-     - Add a single purchase (`/purchase/`).
-     - Bulk upload purchases from a CSV (`/purchase/bulk/`).
-     - Retrieve filtered purchase data (by date and country).
-     - Compute KPIs (mean purchases per client, clients per country, and optionally, forecast sales).
+### 🖥️ **Backend (FastAPI)**
 
-2. **Frontend (Streamlit)**  
-   - Create a simple UI with two tabs:
-     - **Upload Tab**: Form for a single purchase entry and CSV file upload.
-     - **Analyse Tab**: Filter (by date and country) and display KPIs from the API.
+- Manages customer purchase data in-memory.
+- Provides the following endpoints:
+  - Add a single purchase (`POST /purchase/`).
+  - Bulk upload purchases from a CSV file (`POST /purchase/bulk/`).
+  - Retrieve purchases filtered by date and country (`GET /purchases/`).
+  - Compute KPIs such as:
+    - Average purchase per customer.
+    - Number of customers per country.
+    - Sales forecasting.
 
-3. **Dockerization**  
-   - Containerize both the FastAPI and Streamlit applications.
-   - Provide clear instructions to run them locally.
+| Método | Endpoint           | Descripción                      |
+| ------ | ------------------ | -------------------------------- |
+| `POST` | `/purchase/`       | Add a single purchase            |
+| `POST` | `/purchase/bulk/`  | Upload purchases from a CSV file |
+| `GET`  | `/purchases/`      | Retrieve all purchases           |
+| `GET`  | `/purchases/kpis/` | Get purchase KPIs                |
 
-## Requirements
+### 🎨 **Frontend (Streamlit)**
 
-- Use the provided repository as your starting point:
-  - **FastAPI code:** located at `fastapi/main.py`
-  - **Sample CSV file:** `sample_purchase.csv` (CSV format only)
-- Data should be stored in-memory.
-- Document your work in a custom README (this file should be replaced with your own version).
-- Use Git with regular, small commits (feature branches recommended).
-- Write unit tests for key backend functionality.
-- **Deadline:** Complete and submit your GitHub repository link within one week.
+- Provides an interactive UI for users.
+- Features:
+  - **Upload Section**: Allows users to manually input a single purchase or upload a CSV file.
+  - **Analysis Section**: Enables filtering by date and country and displays key KPIs retrieved from the backend.
 
-## Evaluation Criteria
+### 🐳 **Dockerization**
 
-- **Code Quality:** Clean, modular, and well-commented code.
-- **Documentation:** A clear README explaining:
-  - The system architecture.
-  - Setup and running instructions.
-  - Design decisions and any trade-offs.
-- **Testing:** Adequate unit tests for backend endpoints.
-- **Version Control:** Frequent commits and proper branching.
-- **Dockerization:** Successful containerization with clear local run instructions.
+- Both the FastAPI backend and Streamlit frontend are containerized.
+- A `docker-compose.yml` file orchestrates both services.
 
-## Getting Started
+## 🚀 Getting Started
 
-1. **Clone the Repository:**  
-   `git clone https://github.com/merck-test/software-developer-test.git`
+### 1️⃣ **Clone the Repository**
 
-2. **Backend:**  
-   - Review and enhance the FastAPI code in `fastapi/main.py`.
+```bash
+git clone https://github.com/ChengjiePL/software-developer-test-1
+cd software-developer-test-1
+```
 
-3. **Frontend:**  
-   - Build a Streamlit app to interact with the FastAPI endpoints.
+### 2️⃣ **Run with Docker**
 
-4. **Docker:**  
-   - Create Dockerfiles for both the FastAPI and Streamlit applications.
-   - Provide instructions to build and run the containers.
+```bash
+docker-compose up --build
+```
 
-5. **Testing & Documentation:**  
-   - Write unit tests for backend functionality.
-   - Update this README with your explanations and setup instructions.
+This will start both the backend (FastAPI) and frontend (Streamlit) services. `http://localhost:8501/`
 
-## Submission
+## 🧪 Testing
 
-Submit your GitHub repository link once completed. Ensure your repo includes:
-- Your updated README.
-- Enhanced FastAPI and Streamlit code.
-- Dockerfiles and clear run instructions.
-- Unit tests for the backend.
+To run unit tests for the backend, navigate to the `backend/tests` folder and execute:
 
-Good luck and happy coding!
+```bash
+python3 -m pytest test_main.py
+```
+
+## 📦 Project Structure
+
+```
+/
+│── backend/      # FastAPI backend
+│   ├── fastapi
+│   │   ├── main.py   # Main API logic
+│   ├── tests
+│   │   ├── test_main.py # Unit tests
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+│
+│── frontend/     # Streamlit frontend
+│   ├── app.py    # Streamlit application
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+│── docker-compose.yml  # Orchestrates backend & frontend
+│── sample_purchase.csv # Sample CSV for testing
+│── README.md           # Documentation
+```
