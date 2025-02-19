@@ -4,9 +4,12 @@ from collections import defaultdict
 from datetime import date
 from typing import List, Optional
 
+import pandas as pd
+from prophet import Prophet
+from pydantic import BaseModel
+
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 
 app = FastAPI(title="Customer Purchases API")
 
@@ -90,3 +93,38 @@ def get_kpis():
         "average_purchase_per_client": avg_purchase_per_client,
         "clients_per_country": clients_count_by_country,
     }
+
+
+@app.get("/predict/")
+def predict_future(days: int = 1):
+    if not purchases:
+        raise HTTPException(
+            status_code=404,
+            detail="No hay datos de compras disponibles para entrenar el modelo.",
+        )
+
+    # Convertir la lista de compras a un DataFrame
+    df = pd.DataFrame([p.dict() for p in purchases])
+    # Asegurarse de que la columna de fecha es datetime
+    df["purchase_date"] = pd.to_datetime(df["purchase_date"])
+
+    # Agregar datos: total de compras por día (o puedes hacer otra agregación que te interese)
+    df_agg = df.groupby("purchase_date")["amount"].sum().reset_index()
+    df_agg.columns = ["ds", "y"]  # Prophet requiere estas columnas
+
+    # Entrenar el modelo Prophet
+    model = Prophet()
+    model.fit(df_agg)
+
+    # Crear DataFrame de fechas futuras
+    future = model.make_future_dataframe(periods=days)
+    forecast = model.predict(future)
+
+    # Filtrar solo las predicciones para el futuro (después de la última fecha de datos)
+    last_date = df_agg["ds"].max()
+    forecast_future = forecast[forecast["ds"] > last_date]
+
+    # Retornar las predicciones
+    return forecast_future[["ds", "yhat", "yhat_lower", "yhat_upper"]].to_dict(
+        orient="records"
+    )

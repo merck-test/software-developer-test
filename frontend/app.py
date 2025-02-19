@@ -1,3 +1,4 @@
+import pandas as pd
 import requests
 import streamlit as st
 
@@ -42,3 +43,21 @@ if st.sidebar.button("Get Purchases"):
 if st.sidebar.button("Get KPIs"):
     response = requests.get("http://backend:8000/purchases/kpis/")
     st.write(response.json())
+
+
+# Sección para predecir compras futuras
+st.sidebar.header("Predict Future Purchases")
+days = st.sidebar.number_input("Days to predict", min_value=1, value=30, step=1)
+
+if st.sidebar.button("Predict"):
+    response = requests.get("http://backend:8000/predict/", params={"days": days})
+    if response.status_code == 200:
+        predictions = response.json()
+        st.write("Predictions:", predictions)
+        # Opcional: Graficar la predicción
+        df_pred = pd.DataFrame(predictions)
+        df_pred["ds"] = pd.to_datetime(df_pred["ds"])
+        df_pred = df_pred.set_index("ds")
+        st.line_chart(df_pred["yhat"])
+    else:
+        st.error("Error fetching predictions")
