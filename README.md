@@ -14,7 +14,7 @@ This project consists of two main components:
   - Compute KPIs such as:
     - Average purchase per customer.
     - Number of customers per country.
-    - (Optional) Sales forecasting.
+    - Sales forecasting.
 
 | Método | Endpoint           | Descripción                      |
 | ------ | ------------------ | -------------------------------- |
